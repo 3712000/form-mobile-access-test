@@ -1,0 +1,4 @@
+const CACHE='form-gh-access-82336aaaa546',BASE='/form-mobile-access-test/',SHELL=[BASE,BASE+'manifest.webmanifest',BASE+'icon-192.png',BASE+'icon-512.png'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('form-gh-access-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',e=>{const r=e.request,u=new URL(r.url);if(r.method!=='GET'||u.origin!==self.location.origin)return;if(r.mode==='navigate'){e.respondWith(fetch(r).then(s=>{if(s.ok&&s.headers.get('Content-Type')?.includes('text/html')){const copy=s.clone();e.waitUntil(caches.open(CACHE).then(c=>c.put(BASE,copy)))}return s}).catch(()=>caches.match(BASE)));return}if(SHELL.includes(u.pathname))e.respondWith(caches.match(r).then(s=>s||fetch(r)))});
